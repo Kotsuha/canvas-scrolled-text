@@ -1,3 +1,6 @@
+# Demo 1
+# General testing with CanvasScrolledText
+
 import random
 from tkinter import *
 from tkinter.font import Font

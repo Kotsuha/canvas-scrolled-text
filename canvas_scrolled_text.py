@@ -34,7 +34,7 @@ class CanvasScrolledText:
             options["width"] = text_width
         # 爲什麼要 +2 +1 我也不知道，它不按照我給的數字排
         id_text = canvas.create_text(padx + 2, pady + 1, **options)
-        b = canvas.bbox(id_text)  # 你可以把 +2 +1 拿掉，用中斷點停在這行就知道意思了，會看到一個偏移 2px 一個偏移 1px (記得把 Window DPI Scaling 設成 100%)
+        # b = canvas.bbox(id_text)  # 你可以把 +2 +1 拿掉，用中斷點停在這行就知道意思了，會看到一個偏移 2px 一個偏移 1px (記得把 Window DPI Scaling 設成 100%)
 
         # 創建 rect object (for debug)
         id_rect = canvas.create_rectangle(
