@@ -6,11 +6,23 @@ from tkinter import *
 from tkinter.font import Font
 from canvas_scrolled_text import CanvasScrolledText
 
-WINDOW_SIZE = "800x600"
-CANVAS_SIZE = [640, 480]
+C = (  # https://colorhunt.co/palette/e9d5da8273974d4c7d363062
+    "#E9D5DA",
+    "#827397",
+    "#4D4C7D",
+    "#363062",
+)
+
+WINDOW_SIZE = "640x480"
+CANVAS_SIZE = [400, 300]
 root = Tk()
 root.geometry(WINDOW_SIZE)
-canvas = Canvas(root, width=CANVAS_SIZE[0], height=CANVAS_SIZE[1], background="#ffffdd")
+root.configure(background=C[3])
+title = Label(root, text="CanvasScrolledText", bg=C[3], fg="white", pady=8)
+title.pack()
+canvas = Canvas(root,
+                width=CANVAS_SIZE[0], height=CANVAS_SIZE[1],
+                background=C[1])
 canvas.pack()
 
 
@@ -73,7 +85,7 @@ def create_buttons():
     # (1) 做完以後按鈕排列置左，我希望置中：由於現在使用 Text Widget，這個問題換句話說就是如何讓 Text Widget 文字置中。爬文結果：先插入文字 (我們的情況是插入按鈕) 再 tag_add()。
     # (2) 做完以後 cursor hover 按鈕呈現打字的 I 樣式：Button master 要傳入 root 不是 text。注意 Button 雖然傳入 root 但不 pack()，而是利用 text.window_create(INSERT, window=btn) 讓它呈現在 Text Widget 裡面。
 
-    container = Text(root, wrap=WORD)
+    container = Text(root, wrap=WORD, width=1, height=6)
     container.tag_configure("center", justify=CENTER)
     buttons = [
         # 加按鈕加這裡即可
@@ -81,20 +93,19 @@ def create_buttons():
         Button(root, text="Reset Text", command=lambda: o.set_text(article)),
         Button(root, text="Random Text Style", command=random_text_style),
         Button(root, text="Random BG", command=random_bg),
-        Button(root, text="Scroll (0, 0)", command=lambda: o.scroll(0, 0)),
-        Button(root, text="Scroll (10, 0)", command=lambda: o.scroll(10, 0)),
-        Button(root, text="Scroll (-10, 0)", command=lambda: o.scroll(-10, 0)),
-        Button(root, text="Scroll (0, 10)", command=lambda: o.scroll(0, 10)),
-        Button(root, text="Scroll (0, -10)", command=lambda: o.scroll(0, -10)),
-        Button(root, text="Toggle Debug", command=lambda: o.set_debug(not o.debug)),
-        Button(root, text="Print Tag", command=lambda: print(o.tag)),
+        Button(root, text="Scroll Right 10 px", command=lambda: o.scroll(10, 0)),
+        Button(root, text="Scroll Left 10 px", command=lambda: o.scroll(-10, 0)),
+        Button(root, text="Scroll Up 10 px", command=lambda: o.scroll(0, 10)),
+        Button(root, text="Scroll Down 10 px", command=lambda: o.scroll(0, -10)),
+        Button(root, text="(Dev) Toggle Debug", command=lambda: o.set_debug(not o.debug)),
+        Button(root, text="(Dev) Update Scroll", command=o.update_scroll),
+        Button(root, text="(Dev) Print Tag", command=lambda: print(o.tag)),
     ]
     for btn in buttons:
         container.window_create(INSERT, window=btn)
     container.tag_add("center", "1.0", END)
     container.configure(state=DISABLED)
-    container.pack(side=LEFT, fill=BOTH, expand=True)
-    # vsb = Scrollbar(root, command=container.yview)
+    container.pack(side=BOTTOM, fill=X, expand=False)
 
 
 create_buttons()
