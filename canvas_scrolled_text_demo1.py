@@ -22,7 +22,8 @@ title = Label(root, text="CanvasScrolledText", bg=C[3], fg="white", pady=8)
 title.pack()
 canvas = Canvas(root,
                 width=CANVAS_SIZE[0], height=CANVAS_SIZE[1],
-                background=C[1])
+                background=C[1],
+                borderwidth=0, highlightthickness=0)
 canvas.pack()
 
 

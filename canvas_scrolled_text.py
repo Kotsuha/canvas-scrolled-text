@@ -5,10 +5,31 @@ from typing import Tuple, Union
 
 class CanvasScrolledText:
     def __init__(self, canvas: Canvas, canvas_size: Tuple[int, int], text_width=0, padx=8, pady=8, scrollx=False, scrolly=True, text="", tag: Union[str, None] = None) -> None:
-        """
+        """Construct a CanvasScrolledText.
 
-        Args:
-            text_width (int, optional): 文字物件的寬。若爲正數會照著設。若爲 0 則會設爲恰好將 canvas 填滿。若爲負數則不設寬。Defaults to 0.
+        Parameters
+        ----------
+        canvas : Canvas
+            The master canvas. It is recommended that you set its 'borderwidth' and 'highlightthickness' to 0.
+        canvas_size : Tuple[int, int]
+            Tell me the canvas's width and height.
+
+        Optional Parameters
+        ----------
+        text_width : int, optional
+            Your desired text width. (Positive) Would set as it is. (Zero) Would fill the canvas horizontally. (Negative) Would not set.
+        padx : int, optional
+            
+        pady : int, optional
+            
+        scrollx : bool, optional
+            Whether to allow horizontal scrolling.
+        scrolly : bool, optional
+            Whether to allow vertical scrolling.
+        text : str, optional
+            
+        tag : Union[str, None], optional
+            
         """
 
         # 要動態得到準確的 canvas_size 有困難
@@ -19,7 +40,7 @@ class CanvasScrolledText:
 
         # 若沒有 tag 產生一個隨機 tag
         if not tag:
-            tag = uuid.uuid4()
+            tag = uuid.uuid4().hex
 
         # 創建 text object
         options = {
@@ -118,10 +139,7 @@ class CanvasScrolledText:
         self.scroll(0, 0)
 
     def set_debug(self, value: bool):
-        """設定 debug 模式，會顯示 text 範圍、print log 等。
-
-        Args:
-            value (bool): 
+        """Set debug mode. 啓用時會印 log 及顯示 text 的 bbox。
         """
         self.debug = value
         if value:
