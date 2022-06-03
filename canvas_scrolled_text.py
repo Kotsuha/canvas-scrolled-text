@@ -58,6 +58,7 @@ class CanvasScrolledText:
         # 監聽事件
         self.canvas.bind("<B1-Motion>", self._on_drag)
         self.canvas.bind("<ButtonRelease-1>", self._on_release)
+        self.canvas.bind("<MouseWheel>", self._on_mousewheel)
         self._last_drag = None
 
     def get_text(self):
@@ -150,4 +151,8 @@ class CanvasScrolledText:
             print(e)
             print("drag ended")
         self._last_drag = None
-        pass
+
+    def _on_mousewheel(self, e: Event):
+        if self.debug:
+            print(e)
+        self.scroll(0, e.delta)
