@@ -88,6 +88,7 @@ o = CanvasScrolledText(canvas, CANVAS_SIZE, text_width=0, scrollx=True, scrolly=
 p = cProfile.Profile()
 p.runcall(print, "Test")
 p.print_stats()
+p.clear()
 
 
 def create_buttons():
@@ -116,46 +117,57 @@ def create_buttons():
     def command_add_text():
         p.runcall(o.append_text, article)
         p.print_stats()
+        p.clear()
 
     def command_reset_text():
         p.runcall(o.set_text, article)
         p.print_stats()
+        p.clear()
 
     def command_random_text_style():
         p.runcall(random_text_style)
         p.print_stats()
+        p.clear()
 
     def command_random_bg():
         p.runcall(random_bg)
         p.print_stats()
+        p.clear()
 
     def command_scroll_down():
         p.runcall(o.scroll, 0, -10)
         p.print_stats()
+        p.clear()
 
     def command_scroll_up():
         p.runcall(o.scroll, 0, 10)
         p.print_stats()
+        p.clear()
 
     def command_scroll_right():
         p.runcall(o.scroll, 10, 0)
         p.print_stats()
+        p.clear()
 
     def command_scroll_left():
         p.runcall(o.scroll, -10, 0)
         p.print_stats()
+        p.clear()
 
     def command_toggle_debug():
         p.runcall(o.set_debug, not o.debug)
         p.print_stats()
+        p.clear()
 
     def command_update_scroll():
         p.runcall(o.update_scroll)
         p.print_stats()
+        p.clear()
 
     def command_print_tag():
         p.runcall(print, o.tag)
         p.print_stats()
+        p.clear()
 
     # https://stackoverflow.com/questions/69846517/how-to-auto-wrap-widget-in-tkinter
     # https://stackoverflow.com/questions/42560585/how-do-i-center-text-in-the-tkinter-text-widget
