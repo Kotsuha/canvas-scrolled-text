@@ -5,10 +5,8 @@ from tkinter import *
 from PIL import Image, ImageTk
 
 
-root = Tk()
-
-
 images = []  # to hold the newly created image
+
 
 def create_rectangle(x1, y1, x2, y2, **kwargs):
     if 'alpha' in kwargs:
@@ -21,6 +19,7 @@ def create_rectangle(x1, y1, x2, y2, **kwargs):
     canvas.create_rectangle(x1, y1, x2, y2, **kwargs)
 
 
+root = Tk()
 CAN_WIDTH = 400
 CAN_HEIGHT = 300
 canvas = Canvas(root, width=CAN_WIDTH, height=CAN_HEIGHT)
@@ -61,8 +60,9 @@ def update():
     p = p + v
     if p > CAN_HEIGHT:
         p = CAN_HEIGHT
-        v = v * -1 * random.uniform(1, 1.1)
-    canvas.moveto(id_text, 0, p)
+        v = v * -1 * random.uniform(0.9, 1.1)
+    # canvas.moveto(id_text, 0, p) # Another computer doesn't have moveto() method, don't know why
+    canvas.coords(id_text, 0, p)
     root.after(TARGET_FRAME_TIME, update)
 
 
