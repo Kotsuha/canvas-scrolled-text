@@ -1,6 +1,7 @@
 # Demo 1
 # General testing with CanvasScrolledText
 
+import cProfile
 import random
 from tkinter import *
 from tkinter.font import Font
@@ -10,6 +11,9 @@ from PIL import Image, ImageTk
 
 from canvas_scrolled_text import CanvasScrolledText
 
+
+WINDOW_SIZE = "640x480"
+CANVAS_SIZE = [400, 300]
 C = (  # https://colorhunt.co/palette/e9d5da8273974d4c7d363062
     "#E9D5DA",
     "#827397",
@@ -17,8 +21,7 @@ C = (  # https://colorhunt.co/palette/e9d5da8273974d4c7d363062
     "#363062",
 )
 
-WINDOW_SIZE = "640x480"
-CANVAS_SIZE = [400, 300]
+
 root = Tk()
 root.geometry(WINDOW_SIZE)
 root.configure(background=C[3])
@@ -82,6 +85,11 @@ o = CanvasScrolledText(canvas, CANVAS_SIZE, text_width=0, scrollx=True, scrolly=
 # o.set_debug(True)
 
 
+p = cProfile.Profile()
+p.runcall(print, "Test")
+p.print_stats()
+
+
 def create_buttons():
 
     color_choices = ["red", "orange", "yellow", "green", "blue", "indigo", "violet", "black"]
@@ -105,6 +113,50 @@ def create_buttons():
         canvas.itemconfigure(canvas_bg, image=get_random_bg_img())
         canvas.coords(canvas_bg, *get_random_bg_pos())
 
+    def command_add_text():
+        p.runcall(o.append_text, article)
+        p.print_stats()
+
+    def command_reset_text():
+        p.runcall(o.set_text, article)
+        p.print_stats()
+
+    def command_random_text_style():
+        p.runcall(random_text_style)
+        p.print_stats()
+
+    def command_random_bg():
+        p.runcall(random_bg)
+        p.print_stats()
+
+    def command_scroll_down():
+        p.runcall(o.scroll, 0, -10)
+        p.print_stats()
+
+    def command_scroll_up():
+        p.runcall(o.scroll, 0, 10)
+        p.print_stats()
+
+    def command_scroll_right():
+        p.runcall(o.scroll, 10, 0)
+        p.print_stats()
+
+    def command_scroll_left():
+        p.runcall(o.scroll, -10, 0)
+        p.print_stats()
+
+    def command_toggle_debug():
+        p.runcall(o.set_debug, not o.debug)
+        p.print_stats()
+
+    def command_update_scroll():
+        p.runcall(o.update_scroll)
+        p.print_stats()
+
+    def command_print_tag():
+        p.runcall(print, o.tag)
+        p.print_stats()
+
     # https://stackoverflow.com/questions/69846517/how-to-auto-wrap-widget-in-tkinter
     # https://stackoverflow.com/questions/42560585/how-do-i-center-text-in-the-tkinter-text-widget
     # 這裡使用 Text Widdget 達成按鈕自動 wrap，遇到兩個問題
@@ -115,17 +167,17 @@ def create_buttons():
     container.tag_configure("center", justify=CENTER)
     buttons = [
         # 加按鈕加這裡即可
-        Button(root, text="Add Text", command=lambda: o.append_text(article)),
-        Button(root, text="Reset Text", command=lambda: o.set_text(article)),
-        Button(root, text="Random Text Style", command=random_text_style),
-        Button(root, text="Random BG", command=random_bg),
-        Button(root, text="Scroll Right 10 px", command=lambda: o.scroll(10, 0)),
-        Button(root, text="Scroll Left 10 px", command=lambda: o.scroll(-10, 0)),
-        Button(root, text="Scroll Up 10 px", command=lambda: o.scroll(0, 10)),
-        Button(root, text="Scroll Down 10 px", command=lambda: o.scroll(0, -10)),
-        Button(root, text="(Dev) Toggle Debug", command=lambda: o.set_debug(not o.debug)),
-        Button(root, text="(Dev) Update Scroll", command=o.update_scroll),
-        Button(root, text="(Dev) Print Tag", command=lambda: print(o.tag)),
+        Button(root, text="Add Text", command=command_add_text),
+        Button(root, text="Reset Text", command=command_reset_text),
+        Button(root, text="Random Text Style", command=command_random_text_style),
+        Button(root, text="Random BG", command=command_random_bg),
+        Button(root, text="Scroll Down 10 px", command=command_scroll_down),
+        Button(root, text="Scroll Up 10 px", command=command_scroll_up),
+        Button(root, text="Scroll Right 10 px", command=command_scroll_right),
+        Button(root, text="Scroll Left 10 px", command=command_scroll_left),
+        Button(root, text="(Dev) Toggle Debug", command=command_toggle_debug),
+        Button(root, text="(Dev) Update Scroll", command=command_update_scroll),
+        Button(root, text="(Dev) Print Tag", command=command_print_tag),
     ]
     for btn in buttons:
         container.window_create(INSERT, window=btn)
