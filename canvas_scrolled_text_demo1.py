@@ -4,6 +4,10 @@
 import random
 from tkinter import *
 from tkinter.font import Font
+
+import numpy as np
+from PIL import Image, ImageTk
+
 from canvas_scrolled_text import CanvasScrolledText
 
 C = (  # https://colorhunt.co/palette/e9d5da8273974d4c7d363062
@@ -31,11 +35,30 @@ def randbool():
     return bool(random.getrandbits(1))
 
 
-bg_gallery = [
-    PhotoImage(file="img/myLogo2_1.png"),
-    PhotoImage(file="img/myLogo2_2.png"),
-    PhotoImage(file="img/myLogo2_3.png"),
+bg_raw_imgs = [
+    Image.open("img/myLogo2_1.png"),
+    Image.open("img/myLogo2_2.png"),
+    Image.open("img/myLogo2_3.png"),
 ]
+opacity_choices = [0.3, 0.6, 1]
+bg_gallery = []
+for raw_img in bg_raw_imgs:
+    if raw_img.mode != "RGBA":
+        raw_img = raw_img.convert("RGBA")
+    data = np.asanyarray(raw_img)
+    data_alpha_bak = np.empty(data.shape[:2])
+    # Bad
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            data_alpha_bak[i, j] = data[i, j, 3]
+    for opacity in opacity_choices:
+        # Bad
+        for i in range(data.shape[0]):
+            for j in range(data.shape[1]):
+                data[i, j, 3] = int(data_alpha_bak[i, j] * opacity)
+        new_raw_img = Image.fromarray(data)
+        tk_img = ImageTk.PhotoImage(new_raw_img)
+        bg_gallery.append(tk_img)
 
 
 def get_random_bg_img():
@@ -43,8 +66,8 @@ def get_random_bg_img():
 
 
 def get_random_bg_pos():
-    x = CANVAS_SIZE[0] / 2 + random.randint(-CANVAS_SIZE[0] / 4, CANVAS_SIZE[0] / 4)
-    y = CANVAS_SIZE[1] / 2 + random.randint(-CANVAS_SIZE[1] / 4, CANVAS_SIZE[1] / 4)
+    x = random.randint(CANVAS_SIZE[0] * 0.2, CANVAS_SIZE[0] * 0.8)
+    y = random.randint(CANVAS_SIZE[1] * 0.2, CANVAS_SIZE[1] * 0.8)
     return [x, y]
 
 
