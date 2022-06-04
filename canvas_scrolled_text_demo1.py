@@ -24,7 +24,9 @@ root.geometry(WINDOW_SIZE)
 root.configure(background=C[3])
 title = Label(root, text="CanvasScrolledText", bg=C[3], fg="white", pady=8)
 title.pack()
-canvas = Canvas(root,
+frame = Frame(root, borderwidth=0, highlightthickness=4, highlightbackground="white")
+frame.pack()
+canvas = Canvas(frame,
                 width=CANVAS_SIZE[0], height=CANVAS_SIZE[1],
                 background=C[1],
                 borderwidth=0, highlightthickness=0)
@@ -82,7 +84,7 @@ o = CanvasScrolledText(canvas, CANVAS_SIZE, text_width=0, scrollx=True, scrolly=
 
 def create_buttons():
 
-    color_choices = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"]
+    color_choices = ["red", "orange", "yellow", "green", "blue", "indigo", "violet", "black"]
     font_name_choices = ["Arial", "Comic Sans MS", "Fixedsys", "Georgia", "Times New Roman"]
     font_size_choices = [6, 12, 18, 24, 30, 36]
     font_weight_choices = ["normal", "bold"]
