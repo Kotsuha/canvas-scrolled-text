@@ -11,4 +11,4 @@ This is **CanvasScrolledText**. This is an attempt to use Canvas text object as 
 
 ## Known Issue
 
-Very slow on computers without GPU
+~~Very slow on computers without GPU~~ Seems like it's slow on average computers.
