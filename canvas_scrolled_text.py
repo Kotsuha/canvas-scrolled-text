@@ -58,7 +58,7 @@ class CanvasScrolledText:
         # b = canvas.bbox(id_text)  # 你可以把 +2 +1 拿掉，用中斷點停在這行就知道意思了，會看到一個偏移 2px 一個偏移 1px (記得把 Window DPI Scaling 設成 100%)
 
         # Create a vertical progress bar
-        id_line_y = canvas.create_line(canvas_size[0] - 2, 0, canvas_size[0] - 2, canvas_size[1], fill="#f0f0f0", width=4)
+        id_line_y = canvas.create_line(canvas_size[0] - 2, 0, canvas_size[0] - 2, canvas_size[1], fill="#000000", width=4)
 
         # 創建 rect object (for debug)
         id_rect = canvas.create_rectangle(

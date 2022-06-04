@@ -6,5 +6,9 @@ This is **CanvasScrolledText**. This is an attempt to use Canvas text object as 
 
 * Clone this repo
 * `pipenv install` // Optional?
-* `python canvas_scrolled_text_demo1.py` to see the general demo
-* `python canvas_scrolled_text_demo2.py` to see the minimal code to use CanvasScrolledText
+* `python demo1.py` to see the general demo
+* `python demo2.py` to see the minimal code to use CanvasScrolledText
+
+## Known Issue
+
+Very slow on computers without GPU
