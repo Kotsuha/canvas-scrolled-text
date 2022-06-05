@@ -76,12 +76,12 @@ class CanvasScrolledText:
         self.scrolly = scrolly
         self.tag = tag
         self.id_text = id_text
-        self.id_line_y = id_vsb
+        self.id_vsb = id_vsb
         self.id_rect = id_rect
         self.debug = False
 
         # Private vars
-        self._last_drag = None
+        self._last_drag_e = None
 
         # Something cannot be done until members set
         self._update_vsb()
@@ -105,20 +105,25 @@ class CanvasScrolledText:
         self.set_text(new_text)
 
     def _update_vsb(self):
-        CAN_SIZE = self.canvas_size
-        bb = self.canvas.bbox(self.id_text)
-        h = bb[3] - bb[1]
-        ratio = CAN_SIZE[1] / h
+        visible, *coords = self._calc_vsb()
+        self.canvas.coords(self.id_vsb, coords)
+        self.canvas.itemconfigure(self.id_vsb, state=(NORMAL if visible else HIDDEN))
+
+    def _calc_vsb(self):
+        CANSIZE = self.canvas_size
+        text_bound = self.canvas.bbox(self.id_text)
+        text_height = text_bound[3] - text_bound[1]
+        ratio = CANSIZE[1] / text_height
+        x0 = x1 = CANSIZE[0] - 2
         if ratio >= 1:
-            self.canvas.itemconfigure(self.id_line_y, state=HIDDEN)
-            return
+            visible = False
+            y0 = 0
+            y1 = CANSIZE[1]
         else:
-            self.canvas.itemconfigure(self.id_line_y, state=NORMAL)
-        x0 = CAN_SIZE[0] - 2
-        y0 = int((bb[1] * -1) * ratio)
-        x1 = x0
-        y1 = y0 + int(CAN_SIZE[1] * ratio)
-        self.canvas.coords(self.id_line_y, x0, y0, x1, y1)
+            visible = True
+            y0 = int((text_bound[1] * -1) * ratio)
+            y1 = y0 + int(CANSIZE[1] * ratio)
+        return (visible, x0, y0, x1, y1)
 
     def scroll(self, x, y):
         txt_box = self.canvas.bbox(self.id_text)
@@ -175,21 +180,21 @@ class CanvasScrolledText:
         self.canvas.coords(self.id_rect, self.canvas.bbox(self.id_text))
 
     def _on_mousedrag(self, e: Event):
-        if self._last_drag is None:
+        if self._last_drag_e is None:
             if self.debug:
                 print(f"drag began: {e}")
-            self._last_drag = e
+            self._last_drag_e = e
         else:
             if self.debug:
                 print(f"dragging: {e}")
-            dx, dy = (e.x - self._last_drag.x), (e.y - self._last_drag.y)
+            dx, dy = (e.x - self._last_drag_e.x), (e.y - self._last_drag_e.y)
             self.scroll(dx, dy)
-            self._last_drag = e
+            self._last_drag_e = e
 
     def _on_mouserelease(self, e: Event):
         if self.debug:
             print(f"drag ended: {e}")
-        self._last_drag = None
+        self._last_drag_e = None
 
     def _on_mousewheel(self, e: Event):
         if self.debug:
