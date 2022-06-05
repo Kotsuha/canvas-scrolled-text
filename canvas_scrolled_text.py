@@ -1,5 +1,5 @@
 import uuid
-from tkinter import HIDDEN, NORMAL, Canvas, Event
+from tkinter import HIDDEN, NORMAL, NW, Canvas, Event
 from typing import Tuple, Union
 
 
@@ -19,17 +19,17 @@ class CanvasScrolledText:
         text_width : int, optional
             Your desired text width. (Positive) Would set as it is. (Zero) Would fill the canvas horizontally. (Negative) Would not set.
         padx : int, optional
-            
+
         pady : int, optional
-            
+
         scrollx : bool, optional
             Whether to allow horizontal scrolling.
         scrolly : bool, optional
             Whether to allow vertical scrolling.
         text : str, optional
-            
+
         tag : Union[str, None], optional
-            
+
         """
 
         # 要動態得到準確的 canvas_size 有困難
@@ -38,13 +38,13 @@ class CanvasScrolledText:
         # 我暫時不知道怎麼取得這兩個值，也不知道有沒有其他值也會影響
         # 決定讓使用者自己傳 canvas size 進來了
 
-        # 若沒有 tag 產生一個隨機 tag
+        # Create a random tag if not specified
         if not tag:
             tag = uuid.uuid4().hex
 
-        # 創建 text object
+        # Create a text object
         options = {
-            "anchor": "nw",
+            "anchor": NW,
             "tags": (tag,),
             "text": text
         }
@@ -56,17 +56,17 @@ class CanvasScrolledText:
         # 爲什麼要 +2 +1 我也不知道，它不按照我給的數字排
         id_text = canvas.create_text(padx + 2, pady + 1, **options)
         # b = canvas.bbox(id_text)  # 你可以把 +2 +1 拿掉，用中斷點停在這行就知道意思了，會看到一個偏移 2px 一個偏移 1px (記得把 Window DPI Scaling 設成 100%)
+        # c = canvas.coords(id_text)
 
-        # Create a vertical progress bar
-        id_line_y = canvas.create_line(canvas_size[0] - 2, 0, canvas_size[0] - 2, canvas_size[1], fill="#000000", width=4)
+        # Create a fake vertical scrollbar
+        id_vsb = canvas.create_line(canvas_size[0] - 2, 0, canvas_size[0] - 2, canvas_size[1], fill="black", width=4)
 
-        # 創建 rect object (for debug)
-        id_rect = canvas.create_rectangle(
-            canvas.bbox(id_text), tags=(tag,), fill="gray")
+        # Create a rect object (for debug)
+        id_rect = canvas.create_rectangle(canvas.bbox(id_text), tags=(tag,), fill="gray")
         canvas.tag_lower(id_rect, id_text)
-        canvas.itemconfigure(id_rect, state="hidden")
+        canvas.itemconfigure(id_rect, state=HIDDEN)
 
-        # 無腦把變數保存至 instance
+        # Store info into instance
         self.canvas = canvas
         self.canvas_size = canvas_size
         self.text_width = text_width
@@ -76,18 +76,20 @@ class CanvasScrolledText:
         self.scrolly = scrolly
         self.tag = tag
         self.id_text = id_text
-        self.id_line_y = id_line_y
+        self.id_line_y = id_vsb
         self.id_rect = id_rect
         self.debug = False
 
-        # 監聽事件
-        self.canvas.bind("<B1-Motion>", self._on_drag)
-        self.canvas.bind("<ButtonRelease-1>", self._on_release)
-        self.canvas.bind("<MouseWheel>", self._on_mousewheel)
+        # Private vars
         self._last_drag = None
 
-        # Something can only be done until members vars set
-        self._update_progress_y()
+        # Something cannot be done until members set
+        self._update_vsb()
+
+        # Bind events
+        self.canvas.bind("<B1-Motion>", self._on_mousedrag)
+        self.canvas.bind("<ButtonRelease-1>", self._on_mouserelease)
+        self.canvas.bind("<MouseWheel>", self._on_mousewheel)
 
     def get_text(self):
         return self.canvas.itemcget(self.id_text, "text")
@@ -102,7 +104,7 @@ class CanvasScrolledText:
         new_text = old_text + text
         self.set_text(new_text)
 
-    def _update_progress_y(self):
+    def _update_vsb(self):
         CAN_SIZE = self.canvas_size
         bb = self.canvas.bbox(self.id_text)
         h = bb[3] - bb[1]
@@ -158,7 +160,7 @@ class CanvasScrolledText:
             print(f"x: {x}")
         self.canvas.move(self.tag, x, y)
         # Test
-        self._update_progress_y()
+        self._update_vsb()
 
     def update_scroll(self):
         self.scroll(0, 0)
@@ -167,35 +169,29 @@ class CanvasScrolledText:
         """Set debug mode. 啓用時會印 log 及顯示 text 的 bbox。
         """
         self.debug = value
-        if value:
-            self.canvas.itemconfigure(self.id_rect, state=NORMAL)
-        else:
-            self.canvas.itemconfigure(self.id_rect, state=HIDDEN)
+        self.canvas.itemconfigure(self.id_rect, state=(NORMAL if value else HIDDEN))
 
     def update_debug_rect(self):
         self.canvas.coords(self.id_rect, self.canvas.bbox(self.id_text))
 
-    def _on_drag(self, e: Event):
-        if self.debug:
-            print(e)
+    def _on_mousedrag(self, e: Event):
         if self._last_drag is None:
             if self.debug:
-                print("drag began")
+                print(f"drag began: {e}")
             self._last_drag = e
         else:
             if self.debug:
-                print("dragging")
+                print(f"dragging: {e}")
             dx, dy = (e.x - self._last_drag.x), (e.y - self._last_drag.y)
             self.scroll(dx, dy)
             self._last_drag = e
 
-    def _on_release(self, e: Event):
+    def _on_mouserelease(self, e: Event):
         if self.debug:
-            print(e)
-            print("drag ended")
+            print(f"drag ended: {e}")
         self._last_drag = None
 
     def _on_mousewheel(self, e: Event):
         if self.debug:
-            print(e)
+            print(f"wheel: {e}")
         self.scroll(0, e.delta)

@@ -14,6 +14,16 @@
             }
         },
         {
+            "label": "Debug demo1",
+            "type": "shell",
+            "command": "${command:launches.demo1}",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
             "label": "Run demo1",
             "type": "shell",
             "command": "ii scripts/demo1.cmd",
@@ -24,7 +34,7 @@
             }
         },
         {
-            "label": "Run build",
+            "label": "Build",
             "type": "shell",
             "command": "ii scripts/build.cmd",
             "problemMatcher": [],
