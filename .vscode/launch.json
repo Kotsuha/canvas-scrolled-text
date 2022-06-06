@@ -16,7 +16,8 @@
             "name": "demo1",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}\\demo1.py",
+            "cwd": "${workspaceFolder}\\canvas_scrolled_text",
+            "program": "${workspaceFolder}\\canvas_scrolled_text\\demo1.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }

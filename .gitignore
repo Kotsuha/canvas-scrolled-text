@@ -1,5 +1,4 @@
 /__pycache__
 /__ignore__
-
-/nuitka-build
+/canvas_scrolled_text/__pycache__
 /out
