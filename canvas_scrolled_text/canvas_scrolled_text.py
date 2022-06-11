@@ -4,7 +4,7 @@ from typing import Tuple, Union
 
 
 class CanvasScrolledText:
-    def __init__(self, canvas: Canvas, canvas_size: Tuple[int, int], text_width=0, padx=8, pady=8, scrollx=False, scrolly=True, text="", tag: Union[str, None] = None) -> None:
+    def __init__(self, canvas: Canvas, text_width=0, padx=8, pady=8, scrollx=False, scrolly=True, text="", tag: Union[str, None] = None) -> None:
         """Construct a CanvasScrolledText.
 
         Parameters
@@ -32,11 +32,7 @@ class CanvasScrolledText:
 
         """
 
-        # 要動態得到準確的 canvas_size 有困難
-        # 一是必須等到 root.mainloop() 開始以後才能取得非 0 值，這點辦得到
-        # 二是得到的值會受 highlightthickness (已驗證) 和 borderwidth (沒驗證) 影響
-        # 我暫時不知道怎麼取得這兩個值，也不知道有沒有其他值也會影響
-        # 決定讓使用者自己傳 canvas size 進來了
+        canvas_size = [int(canvas.cget("width")), int(canvas.cget("height"))]
 
         # Create a random tag if not specified
         if not tag:
@@ -57,6 +53,8 @@ class CanvasScrolledText:
         id_text = canvas.create_text(padx + 2, pady + 1, **options)
         # b = canvas.bbox(id_text)  # 你可以把 +2 +1 拿掉，用中斷點停在這行就知道意思了，會看到一個偏移 2px 一個偏移 1px (記得把 Window DPI Scaling 設成 100%)
         # c = canvas.coords(id_text)
+        # 後日談：Tkinter Canvas 有多個座標相關的 method，每個計算方式不太一樣。很混亂。
+        # 這裏 bbox 的回傳也不符合我預期。不過反正可以用。
 
         # Create a fake vertical scrollbar
         id_vsb = canvas.create_line(canvas_size[0] - 2, 0, canvas_size[0] - 2, canvas_size[1], fill="black", width=4)
@@ -104,6 +102,51 @@ class CanvasScrolledText:
         new_text = old_text + text
         self.set_text(new_text)
 
+    def get_text_bbox_limit(self):
+        bblimit = [
+            self.padx + 1,
+            self.pady + 1,
+            self.canvas_size[0] - self.padx - 1,
+            self.canvas_size[1] - self.pady - 1
+        ]
+        return bblimit
+
+    def scroll(self, x, y):
+        text_bbox = self.canvas.bbox(self.id_text)
+        text_bbox_limit = self.get_text_bbox_limit()
+
+        text_bbox_size = [
+            text_bbox[2] - text_bbox[0],
+            text_bbox[3] - text_bbox[1]
+        ]
+
+        if self.scrollx:
+            if text_bbox_size[0] <= self.canvas_size[0] - self.padx * 2:
+                x = text_bbox_limit[0] - text_bbox[0]
+            if text_bbox[0] + x > text_bbox_limit[0]:
+                x = text_bbox_limit[0] - text_bbox[0]
+            elif text_bbox[2] + x < text_bbox_limit[2]:
+                x = text_bbox_limit[2] - text_bbox[2]
+        else:
+            x = 0
+
+        if self.scrolly:
+            if text_bbox_size[1] <= self.canvas_size[1] - self.pady * 2:
+                y = text_bbox_limit[1] - text_bbox[1]
+            elif text_bbox[1] + y > text_bbox_limit[1]:
+                y = text_bbox_limit[1] - text_bbox[1]
+            elif text_bbox[3] + y < text_bbox_limit[3]:
+                y = text_bbox_limit[3] - text_bbox[3]
+        else:
+            y = 0
+
+        if x != 0 or y != 0:
+            self.canvas.move(self.tag, x, y)
+        self._update_vsb()
+
+    def update_scroll(self):
+        self.scroll(0, 0)
+
     def _update_vsb(self):
         visible, *coords = self._calc_vsb()
         self.canvas.coords(self.id_vsb, coords)
@@ -124,51 +167,6 @@ class CanvasScrolledText:
             y0 = int((text_bound[1] * -1) * ratio)
             y1 = y0 + int(CANSIZE[1] * ratio)
         return (visible, x0, y0, x1, y1)
-
-    def scroll(self, x, y):
-        txt_box = self.canvas.bbox(self.id_text)
-        txt_width = txt_box[2] - txt_box[0]
-        txt_height = txt_box[3] - txt_box[1]
-        can_width = self.canvas_size[0]
-        can_height = self.canvas_size[1]
-        txt_box_limit = [
-            self.padx + 1,
-            self.pady + 1,
-            can_width - self.padx - 1,
-            can_height - self.pady - 1
-        ]
-        if self.debug:
-            print(f"txt_box: {txt_box}")
-            print(f"txt_box_limit: {txt_box_limit}")
-        if self.scrollx:
-            if txt_width <= can_width - self.padx * 2:
-                x = (self.padx + 1) - txt_box[0]
-            else:
-                if txt_box[0] + x > txt_box_limit[0]:
-                    x = txt_box_limit[0] - txt_box[0]
-                elif txt_box[2] + x < txt_box_limit[2]:
-                    x = txt_box_limit[2] - txt_box[2]
-        else:
-            x = 0
-        if self.scrolly:
-            if txt_height <= can_height - self.pady * 2:
-                y = (self.pady + 1) - txt_box[1]
-            else:
-                if txt_box[1] + y > txt_box_limit[1]:
-                    y = txt_box_limit[1] - txt_box[1]
-                elif txt_box[3] + y < txt_box_limit[3]:
-                    y = txt_box_limit[3] - txt_box[3]
-        else:
-            y = 0
-
-        if self.debug:
-            print(f"x: {x}")
-        self.canvas.move(self.tag, x, y)
-        # Test
-        self._update_vsb()
-
-    def update_scroll(self):
-        self.scroll(0, 0)
 
     def set_debug(self, value: bool):
         """Set debug mode. 啓用時會印 log 及顯示 text 的 bbox。

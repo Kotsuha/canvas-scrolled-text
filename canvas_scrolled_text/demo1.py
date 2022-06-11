@@ -81,7 +81,7 @@ canvas_bg = canvas.create_image(*get_random_bg_pos(), image=get_random_bg_img(),
 
 lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 article = "\n\n".join([lorem] * 2) + "\n\n"
-o = CanvasScrolledText(canvas, CANVAS_SIZE, text_width=0, scrollx=True, scrolly=True, text=article)
+o = CanvasScrolledText(canvas, text_width=0, scrollx=True, scrolly=True, text=article)
 # o.set_debug(True)
 
 
