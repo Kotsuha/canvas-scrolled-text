@@ -60,7 +60,7 @@ class CanvasScrolledText:
         id_vsb = canvas.create_line(canvas_size[0] - 2, 0, canvas_size[0] - 2, canvas_size[1], fill="black", width=4)
 
         # Create a rect object (for debug)
-        id_rect = canvas.create_rectangle(canvas.bbox(id_text), tags=(tag,), fill="gray")
+        id_rect = canvas.create_rectangle(canvas.bbox(id_text), tags=(tag,), fill="gray", width=0)
         canvas.tag_lower(id_rect, id_text)
         canvas.itemconfigure(id_rect, state=HIDDEN)
 
@@ -153,10 +153,12 @@ class CanvasScrolledText:
         self.canvas.itemconfigure(self.id_vsb, state=(NORMAL if visible else HIDDEN))
 
     def _calc_vsb(self):
+        # 不是很懂，反正就是這樣
         CANSIZE = self.canvas_size
-        text_bound = self.canvas.bbox(self.id_text)
-        text_height = text_bound[3] - text_bound[1]
-        ratio = CANSIZE[1] / text_height
+        text_bbox = self.canvas.bbox(self.id_text)
+        content_bbox = tuple(map(sum, zip(text_bbox, (-self.padx, -self.pady, self.padx, self.pady))))
+        content_bbox_h = content_bbox[3] - content_bbox[1]
+        ratio = CANSIZE[1] / content_bbox_h
         x0 = x1 = CANSIZE[0] - 2
         if ratio >= 1:
             visible = False
@@ -164,7 +166,7 @@ class CanvasScrolledText:
             y1 = CANSIZE[1]
         else:
             visible = True
-            y0 = int((text_bound[1] * -1) * ratio)
+            y0 = int(-(text_bbox[1] - (self.pady + 1)) * ratio)
             y1 = y0 + int(CANSIZE[1] * ratio)
         return (visible, x0, y0, x1, y1)
 

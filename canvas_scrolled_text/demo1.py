@@ -27,7 +27,7 @@ root.geometry(WINDOW_SIZE)
 root.configure(background=C[3])
 title = Label(root, text="CanvasScrolledText", bg=C[3], fg="white", pady=8)
 title.pack()
-frame = Frame(root, borderwidth=0, highlightthickness=4, highlightbackground="white")
+frame = Frame(root, borderwidth=0, highlightthickness=0, highlightbackground="white")
 frame.pack()
 canvas = Canvas(frame,
                 width=CANVAS_SIZE[0], height=CANVAS_SIZE[1],
@@ -81,7 +81,7 @@ canvas_bg = canvas.create_image(*get_random_bg_pos(), image=get_random_bg_img(),
 
 lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 article = "\n\n".join([lorem] * 2) + "\n\n"
-o = CanvasScrolledText(canvas, text_width=0, scrollx=True, scrolly=True, text=article)
+o = CanvasScrolledText(canvas, text_width=0, padx=16, pady=16, scrollx=True, scrolly=True, text=article)
 # o.set_debug(True)
 
 
