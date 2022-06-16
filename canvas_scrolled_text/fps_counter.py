@@ -14,4 +14,4 @@ def update():
 
     frame_time = round(dt, 2)
     fps = round(1000 / dt, 2)
-    text = f"{fps} FPS ({frame_time} ms)"
+    text = f"{fps:.2f} FPS ({frame_time:.2f} ms)"

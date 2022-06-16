@@ -16,9 +16,7 @@ class CanvasScrolledText:
         Parameters
         ----------
         canvas : Canvas
-            The master canvas. It is recommended that you set its 'borderwidth' and 'highlightthickness' to 0.
-        canvas_size : Tuple[int, int]
-            Tell me the canvas's width and height.
+            The master canvas. It is strongly recommended that you set its 'borderwidth' and 'highlightthickness' to 0.
 
         Optional Parameters
         ----------
@@ -65,15 +63,6 @@ class CanvasScrolledText:
         # Create a fake vertical scrollbar
         id_vsb = canvas.create_line(canvas_size[0] - 2, 0, canvas_size[0] - 2,
                                     canvas_size[1], width=4, fill="black", activefill="cyan")
-        self._hover_vsb = False
-
-        def on_vsb_enter(e: Event):
-            self._hover_vsb = True
-
-        def on_vsb_leave(e: Event):
-            self._hover_vsb = False
-        canvas.tag_bind(id_vsb, "<Enter>", on_vsb_enter)
-        canvas.tag_bind(id_vsb, "<Leave>", on_vsb_leave)
 
         # Create a rect object (for debug)
         id_rect = canvas.create_rectangle(canvas.bbox(id_text), tags=(tag,), fill="gray", width=0)
@@ -95,16 +84,25 @@ class CanvasScrolledText:
         self.debug = False
 
         # Private vars
-        self._last_drag_e = None
+        self._hover_vsb = False
         self._drag_state = DRAG_STATE.NONE
+        self._last_drag_e = None
 
         # Something cannot be done until members set
         self._update_vsb()
 
         # Bind events
-        self.canvas.bind("<B1-Motion>", self._on_mousedrag)
-        self.canvas.bind("<ButtonRelease-1>", self._on_mouserelease)
-        self.canvas.bind("<MouseWheel>", self._on_mousewheel)
+        def on_vsb_enter(e: Event):
+            self._hover_vsb = True
+
+        def on_vsb_leave(e: Event):
+            self._hover_vsb = False
+
+        canvas.tag_bind(id_vsb, "<Enter>", on_vsb_enter)
+        canvas.tag_bind(id_vsb, "<Leave>", on_vsb_leave)
+        canvas.bind("<B1-Motion>", self._on_mousedrag)
+        canvas.bind("<ButtonRelease-1>", self._on_mouserelease)
+        canvas.bind("<MouseWheel>", self._on_mousewheel)
 
     def get_text(self):
         return self.canvas.itemcget(self.id_text, "text")
