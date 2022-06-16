@@ -3,6 +3,12 @@ from tkinter import HIDDEN, NORMAL, NW, Canvas, Event
 from typing import Tuple, Union
 
 
+class DRAG_STATE:
+    NONE = "None"
+    CONTENT = "Content"
+    VSB = "VSB"
+
+
 class CanvasScrolledText:
     def __init__(self, canvas: Canvas, text_width=0, padx=8, pady=8, scrollx=False, scrolly=True, text="", tag: Union[str, None] = None) -> None:
         """Construct a CanvasScrolledText.
@@ -57,7 +63,17 @@ class CanvasScrolledText:
         # 這裏 bbox 的回傳也不符合我預期。不過反正可以用。
 
         # Create a fake vertical scrollbar
-        id_vsb = canvas.create_line(canvas_size[0] - 2, 0, canvas_size[0] - 2, canvas_size[1], fill="black", width=4)
+        id_vsb = canvas.create_line(canvas_size[0] - 2, 0, canvas_size[0] - 2,
+                                    canvas_size[1], width=4, fill="black", activefill="cyan")
+        self._hover_vsb = False
+
+        def on_vsb_enter(e: Event):
+            self._hover_vsb = True
+
+        def on_vsb_leave(e: Event):
+            self._hover_vsb = False
+        canvas.tag_bind(id_vsb, "<Enter>", on_vsb_enter)
+        canvas.tag_bind(id_vsb, "<Leave>", on_vsb_leave)
 
         # Create a rect object (for debug)
         id_rect = canvas.create_rectangle(canvas.bbox(id_text), tags=(tag,), fill="gray", width=0)
@@ -80,6 +96,7 @@ class CanvasScrolledText:
 
         # Private vars
         self._last_drag_e = None
+        self._drag_state = DRAG_STATE.NONE
 
         # Something cannot be done until members set
         self._update_vsb()
@@ -184,10 +201,22 @@ class CanvasScrolledText:
             if self.debug:
                 print(f"drag began: {e}")
             self._last_drag_e = e
+            if self._hover_vsb:
+                self._drag_state = DRAG_STATE.VSB
+            else:
+                self._drag_state = DRAG_STATE.CONTENT
         else:
             if self.debug:
                 print(f"dragging: {e}")
-            dx, dy = (e.x - self._last_drag_e.x), (e.y - self._last_drag_e.y)
+            dx, dy = 0, 0
+            if self._drag_state == DRAG_STATE.CONTENT:
+                dx, dy = (e.x - self._last_drag_e.x), (e.y - self._last_drag_e.y)
+            elif self._drag_state == DRAG_STATE.VSB:
+                text_bbox = self.canvas.bbox(self.id_text)
+                content_bbox = tuple(map(sum, zip(text_bbox, (-self.padx, -self.pady, self.padx, self.pady))))
+                content_bbox_h = content_bbox[3] - content_bbox[1]
+                ratio = content_bbox_h / self.canvas_size[1]
+                dy = (e.y - self._last_drag_e.y) * ratio * -1
             self.scroll(dx, dy)
             self._last_drag_e = e
 
@@ -195,6 +224,7 @@ class CanvasScrolledText:
         if self.debug:
             print(f"drag ended: {e}")
         self._last_drag_e = None
+        self._drag_state = DRAG_STATE.NONE
 
     def _on_mousewheel(self, e: Event):
         if self.debug:
